@@ -1,0 +1,2 @@
+-define (TIMEOUT, 5000).
+-define (CALLBACKS, chat_server_callbacks).
