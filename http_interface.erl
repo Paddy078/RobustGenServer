@@ -26,11 +26,14 @@ loop(Sock) ->
   gen_tcp:controlling_process(Conn, Handler),
   loop(Sock).
 
-handle(Conn) ->
+handle(Socket) ->
+  {ok, Request} = gen_tcp:recv(Socket, 0),
+  ParsedRequest = http_parser:parse(Request),
+  io:format("Data: ~p~n", [ParsedRequest]),
   Messages = chat_server:get_new_messages(),
   io:format("Messages: ~p~n", [Messages]),
-  gen_tcp:send(Conn, response(Messages)),
-  gen_tcp:close(Conn).
+  gen_tcp:send(Socket, response(Messages)),
+  gen_tcp:close(Socket).
 
 response(Str) ->
   B = iolist_to_binary(Str),

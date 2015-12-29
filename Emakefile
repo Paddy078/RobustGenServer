@@ -1,1 +1,1 @@
-[http_interface, chat_server, chat_server_callbacks].
+[http_parser, http_interface, chat_server, chat_server_callbacks].
