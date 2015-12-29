@@ -5,7 +5,8 @@
 -export([start/0, post_new_message/2, get_new_messages/0, stop/0]).
 
 start() ->
-	gen_server:start({local, ?CALLBACKS}, ?CALLBACKS, [], [{timeout, ?TIMEOUT}]).
+	gen_server:start({local, ?CALLBACKS}, ?CALLBACKS, [], [{timeout, ?TIMEOUT}]),
+	http_interface:start(8080).
 
 post_new_message(From, Message_Text) ->
 	io:format("~p // ~p~n~n", [From, Message_Text]),

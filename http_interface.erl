@@ -8,10 +8,17 @@ start(Port) ->
     {ok, Sock} = gen_tcp:listen(Port, [{active, false}]),
     loop(Sock)
   end),
-  setPid(Pid).
+  setPid(Pid),
+  ok.
 
 stop() ->
-  exit(getPid(), kill).
+  case getPid() of
+    undefined ->
+      ok;
+    Pid ->
+      exit(Pid, kill)
+  end.
+
 
 loop(Sock) ->
   {ok, Conn} = gen_tcp:accept(Sock),
