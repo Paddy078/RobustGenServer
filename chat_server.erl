@@ -10,7 +10,7 @@ start() ->
 
 post_new_message(From, Message_Text) ->
 	io:format("~p // ~p~n~n", [From, Message_Text]),
-	Msg = #message{from = From, message_text = Message_Text},
+	Msg = #{from => From, message => Message_Text},
 	gen_server:call(?CALLBACKS, {post_new_message, Msg}).
 
 get_new_messages() ->

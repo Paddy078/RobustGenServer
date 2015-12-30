@@ -1,1 +1,1 @@
--record(message, {from, message_text}).
+-record(message, {from, message}).

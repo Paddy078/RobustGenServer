@@ -29,10 +29,11 @@ loop(Sock) ->
 handle(Socket) ->
   {ok, Request} = gen_tcp:recv(Socket, 0),
   ParsedRequest = http_parser:parse(Request),
-  io:format("Data: ~p~n", [ParsedRequest]),
-  Messages = chat_server:get_new_messages(),
-  io:format("Messages: ~p~n", [Messages]),
-  gen_tcp:send(Socket, response(Messages)),
+  Answer = request_handler:handle_request(ParsedRequest, Socket),
+  io:format("Answer: ~p~n", [Answer]),
+  SerializedAnswer = json_parser:erlang_to_json(Answer),
+  io:format("SerializedAnswer: ~p~n", [SerializedAnswer]),
+  gen_tcp:send(Socket, response(SerializedAnswer)),
   gen_tcp:close(Socket).
 
 response(Str) ->
@@ -43,6 +44,7 @@ response(Str) ->
 
 %%% Save Pid of spawned process for later to stop correctly
 %%% TODO: Ugly as fuck. Change later.
+%%% TODO: Also make sure this actually works.
 setPid(Pid) ->
   put(pid, Pid).
 
