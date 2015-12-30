@@ -30,9 +30,7 @@ handle(Socket) ->
   {ok, Request} = gen_tcp:recv(Socket, 0),
   ParsedRequest = http_parser:parse(Request),
   Answer = request_handler:handle_request(ParsedRequest, Socket),
-  io:format("Answer: ~p~n", [Answer]),
   SerializedAnswer = json_parser:erlang_to_json(Answer),
-  io:format("SerializedAnswer: ~p~n", [SerializedAnswer]),
   gen_tcp:send(Socket, response(SerializedAnswer)),
   gen_tcp:close(Socket).
 

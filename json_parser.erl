@@ -16,8 +16,6 @@ erlang_to_json(List) when is_list(List) ->
 erlang_to_json([], Acc) ->
   Acc ++ "]";
 erlang_to_json(List, Acc) ->
-  io:format("~p~n", [List]),
-  io:format("~p~n", [Acc]),
   [Map|Tail] = List,
   Element = erlang_to_json(Map),
   case Tail of
