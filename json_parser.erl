@@ -8,11 +8,17 @@ json_to_erlang(Json) ->
 
 %% Serializes an Erlang Map to a JSON String
 %% TODO: Implement actual serialization
+% The input is a map and should be serialized to a JSON object
 erlang_to_json(Map) when is_map(Map) ->
   "{\n\t\"from\": \"me\",\n\t\"message\": \"Hello, World!\"\n}";
+% The input is an array and should be serialized to a JSON array
 erlang_to_json(List) when is_list(List) ->
-  erlang_to_json(List, "[").
+  erlang_to_json(List, "[");
+% The Input isn't serializable to JSON and should be returned unchanged
+erlang_to_json(Some) ->
+  Some.
 
+%% Private implementation of Erlang list to json serialization
 erlang_to_json([], Acc) ->
   Acc ++ "]";
 erlang_to_json(List, Acc) ->
