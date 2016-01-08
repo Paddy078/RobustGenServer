@@ -1,0 +1,20 @@
+-module(chat_server_callbacks).
+
+-export([]).
+
+
+-record(message, {from, message_text}).
+
+init([]) ->
+	Messages = %{},
+	{ok, Messages}.
+
+handle_call(#message{from=From, message_text=Message_Text}, AllMessages) ->
+	NewAllMessages = [AllMessages|#message],
+	{reply, NewAllMessages}.
+
+handle_call(get_new_messages, AllMessages) ->
+	{reply, AllMessages}.
+
+
+
