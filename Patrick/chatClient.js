@@ -3,21 +3,23 @@ window.onload = function() {
 
     var xmlhttp = new XMLHttpRequest(); //ajax request object
 
-    var getNewMessagesUrlPart = "/msg";
-
-    var serverUrl = "http://localhost:8080"; //window.location.href.split('?')[0];
-    var serverUrlToGetNewMessages = serverUrl + getNewMessagesUrlPart;
-    var serverUrlToPostNewMessage = serverUrl + "";
+    var serverUrl = "http://localhost:8080/msg";
 
     var isGetNewMessagesRequestResponse = function() {
-        return xmlhttp.responseURL.indexOf(getNewMessagesUrlPart) != -1;
+        return xmlhttp.responseText != "[]" && xmlhttp.responseText != "";
+
     }
 
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == XMLHttpRequest.DONE) {
             if (xmlhttp.status == 200) {
-                if(isGetNewMessagesRequestResponse()){
-                    var responseJson = JSON.parse(xmlhttp.responseText);
+                if (isGetNewMessagesRequestResponse()) {
+                    //temp until json erlang bug is fixed
+                    var tempJson = xmlhttp.responseText.replace(/\"\"/g, '\"');
+                    var responseJson = JSON.parse(tempJson);
+
+                    //var responseJson = JSON.parse(xmlhttp.responseText);
+
                     appendNewChatMessagesOutput(responseJson);
                 }
             }
@@ -28,15 +30,18 @@ window.onload = function() {
         var messagesTable = document.getElementById(chatMessagesContainerId);
         messagesTable.innerHTML = "";
         for(i = 0; i < messagesJson.length; i++){
-            messagesTable.appendChild(createMessageLineTableRecord(messagesJson[i].from, messagesJson[i].message));
+            messagesTable.appendChild(createMessageLineTableRecord(messagesJson[i].time, messagesJson[i].from, messagesJson[i].message));
         }
     }
 
-    var createMessageLineTableRecord = function(from, message) {
+    var createMessageLineTableRecord = function(time, from, message) {
         var messageLineTableRecord = document.createElement("TR");
-        var fromTableDataElement = createTableData(from);
-        fromTableDataElement.style.borderRight = "2px solid";
+
+        var fromTableDataElement = createTableData(from );
         messageLineTableRecord.appendChild(fromTableDataElement);
+
+        var timeTableDataElement = createTableData("(" + time + ") :");
+        messageLineTableRecord.appendChild(timeTableDataElement);
 
         messageLineTableRecord.appendChild(createTableData(message));
         return messageLineTableRecord;
@@ -50,15 +55,24 @@ window.onload = function() {
     }
 
     var postMessageToServer = function() {
-        if(document.getElementById("messageInputField").value != "") {
-            //to implement
-            xmlhttp.open("POST", serverUrlToPostNewMessage, true);
-            xmlhttp.send(null);
+        var messageInputField = document.getElementById("messageInputField");
+        var messageInputFieldValue = messageInputField.value;
+        var nameInputFieldValue = document.getElementById("nameInputField").value;
+        if(nameInputFieldValue == ""){
+            alert("enter a name first to send messages");
+        }
+        else{
+            if(messageInputFieldValue != "") {
+                xmlhttp.open("POST", serverUrl, true);
+                //xmlhttp.body
+                xmlhttp.send(JSON.stringify({from:nameInputFieldValue, message:messageInputFieldValue}));
+                messageInputField.value = "";
+            }
         }
     }
 
     var sendGetNewMessagesRequest = function () {
-        xmlhttp.open("GET", serverUrlToGetNewMessages, true);
+        xmlhttp.open("GET", serverUrl, true);
         xmlhttp.send(null);
     }
 
@@ -67,11 +81,13 @@ window.onload = function() {
 
 
     sendGetNewMessagesRequest();
-    //setInterval(sendGetNewMessagesRequest, 3000);
+    setInterval(sendGetNewMessagesRequest, 1000);
 }
 
 
 
+
+//fromTableDataElement.style.borderRight = "2px solid";
 
 
 

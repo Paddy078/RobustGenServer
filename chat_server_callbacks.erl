@@ -30,7 +30,7 @@ terminate(Other, Messages) ->
 
 %% Synchronous Calls
 handle_call({post_new_message, NewMessage}, _, AllMessages) ->
-	NewAllMessages = [NewMessage|AllMessages],
+	NewAllMessages = lists:concat([AllMessages, [NewMessage]]),
 	{reply, ok, NewAllMessages};
 
 handle_call({get_new_messages}, _, AllMessages) ->
@@ -42,7 +42,7 @@ handle_cast(stop, Messages) ->
 	{stop, normal, Messages};
 
 handle_cast({post_new_message, Msg}, AllMessages) ->
-	NewAllMessages = [Msg|AllMessages],
+	NewAllMessages = lists:concat([AllMessages, [Msg]]),
 	{noreply, NewAllMessages};
 
 handle_cast(Request, Messages) ->

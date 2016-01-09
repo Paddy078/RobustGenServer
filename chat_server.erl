@@ -10,7 +10,8 @@ start() ->
 
 post_new_message(From, Message_Text) ->
 	io:format("~p // ~p~n~n", [From, Message_Text]),
-	Msg = #{from => From, message => Message_Text},
+
+	Msg = #{from => From, message => Message_Text, time => get_formatted_current_time()},
 	gen_server:call(?CALLBACKS, {post_new_message, Msg}).
 
 post_new_messages([]) ->
@@ -23,8 +24,8 @@ post_new_messages(MessageList) ->
 	post_new_messages(Other).
 
 post_new_async_message(From, Message_Text) ->
-	io:format("~p // ~p~n~n", [From, Message_Text]),
-	Msg = #{from => From, message => Message_Text},
+	io:format("~p // ~p ~n~n", [From, Message_Text]),
+	Msg = #{from => From, message => Message_Text, time => get_formatted_current_time()},
 	gen_server:cast(?CALLBACKS, {post_new_message, Msg}).
 
 get_new_messages() ->
@@ -33,3 +34,7 @@ get_new_messages() ->
 stop()->
 	http_interface:stop(),
 	gen_server:cast(?CALLBACKS, stop).
+
+get_formatted_current_time() ->
+	{Date={Year,Month,Day},Time={Hour,Minutes,Seconds}} = erlang:localtime(),
+	integer_to_list(Hour) ++ ":" ++ integer_to_list(Minutes) ++ ":" ++ integer_to_list(Seconds).
