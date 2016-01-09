@@ -46,7 +46,7 @@ handle(Socket) ->
 %% Serialize the response to HTTP compatible format
 response(Str) ->
   B = iolist_to_binary(Str),
-  io_lib:fwrite("HTTP/1.0 200 OK\nContent-Type: text/html\nContent-Length: ~p\nAccess-Control-Allow-Origin: *\n\n~s",
+  io_lib:fwrite("HTTP/1.0 200 OK\nContent-Type: text/html\nContent-Length: ~p\n\n~s",
     [size(B), B]).
 
 
