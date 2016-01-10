@@ -30,11 +30,14 @@ terminate(Other, Messages) ->
 
 %% Synchronous Calls
 handle_call({post_new_message, NewMessage}, _, AllMessages) ->
-	NewAllMessages = lists:concat([AllMessages, [NewMessage]]),
-	{reply, ok, NewAllMessages};
+		NewMessageWithUpdatedId = get_new_message_with_updated_id(NewMessage, AllMessages),
+		NewAllMessages = lists:concat([AllMessages, [NewMessageWithUpdatedId]]),
+		{reply, ok, NewAllMessages};
 
-handle_call({get_new_messages}, _, AllMessages) ->
-	{reply, AllMessages, AllMessages}.
+handle_call({get_new_messages, LastMessageIndex}, _, AllMessages) ->
+	{LastMessageIndexInt,_} = string:to_integer(LastMessageIndex),
+ 	MessagesToSend = [X || X <- AllMessages, maps:get(id,X) > LastMessageIndexInt], %filter messages, only get messages with id higher that lastMessageIndex
+	{reply, MessagesToSend, AllMessages}.
 
 %% Asynchronous Calls
 handle_cast(stop, Messages) ->
@@ -42,7 +45,8 @@ handle_cast(stop, Messages) ->
 	{stop, normal, Messages};
 
 handle_cast({post_new_message, Msg}, AllMessages) ->
-	NewAllMessages = lists:concat([AllMessages, [Msg]]),
+	NewMessageWithUpdatedId = get_new_message_with_updated_id(Msg, AllMessages),
+	NewAllMessages = lists:concat([AllMessages, [NewMessageWithUpdatedId]]),
 	{noreply, NewAllMessages};
 
 handle_cast(Request, Messages) ->
@@ -61,3 +65,16 @@ code_change(_, Messages, _) ->
 	% not implemented
 	io:format("Code Change called!~n", []),
 	{ok, Messages}.
+
+%Helper method to update id of a new message to the next free id
+	get_new_message_with_updated_id(NewMessage, AllMessages) ->
+		case length(AllMessages) of
+			0 ->
+				LastMessageID = 0;
+			_ ->
+				LastMessage = lists:last(AllMessages),
+				#{id := LastMessageID} = LastMessage
+		end,
+		NewMessageID = LastMessageID + 1,
+		NewMessageWithUpdatedId = maps:put(id, NewMessageID, NewMessage),
+		NewMessageWithUpdatedId.

@@ -30,17 +30,16 @@ terminate(Other, Messages) ->
 
 %% Synchronous Calls
 handle_call({post_new_message, NewMessage}, _, AllMessages) ->
-%	NewAllMessages = [NewMessage|AllMessages],
-	%
-	io:format("~p~n", [AllMessages]),
-io:format("~p~n", [NewMessage]),
-	%
 	NewAllMessages = lists:concat([AllMessages, [NewMessage]]),
-
 	{reply, ok, NewAllMessages};
 
 handle_call({get_new_messages}, _, AllMessages) ->
-	{reply, AllMessages, AllMessages}.
+%	{reply, AllMessages, AllMessages}.
+
+	NewMessagesToSend = "",
+	{reply, NewMessagesToSend, NewMessagesToSend}.
+
+
 
 %% Asynchronous Calls
 handle_cast(stop, Messages) ->
@@ -48,12 +47,6 @@ handle_cast(stop, Messages) ->
 	{stop, normal, Messages};
 
 handle_cast({post_new_message, Msg}, AllMessages) ->
-%	NewAllMessages = [Msg|AllMessages],
-	%
-	
-io:format("~p~n", [AllMessages]),
-io:format("~p~n", [Msg]),
-
 	NewAllMessages = lists:concat([AllMessages, [Msg]]),
 	{noreply, NewAllMessages};
 

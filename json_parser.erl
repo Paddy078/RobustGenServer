@@ -44,8 +44,8 @@ json_element_to_erlang(Element) ->
 %% TODO: Implement actual serialization
 % The input is a map and should be serialized to a JSON object
 erlang_to_json(Map) when is_map(Map) ->
-  #{from := From, message := Message, time := Time} = Map,
-  io_lib:fwrite("{\n\t\"from\": \"~p\",\n\t\"message\": \"~p\"\n,\n\t\"time\": \"~p\"\n}", [From, Message, Time]);
+  #{id := Id, from := From, message := Message, time := Time} = Map,
+  io_lib:fwrite("{\n\t\"id\": \"~p\", \n\t\"from\": \"~p\",\n\t\"message\": \"~p\"\n,\n\t\"time\": \"~p\"\n}", [Id, From, Message, Time]);
 
 % The input is an array and should be serialized to a JSON array
 erlang_to_json(List) when is_list(List) ->

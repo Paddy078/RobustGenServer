@@ -24,9 +24,15 @@ read_header(HeaderLine) ->
     _ ->
       unsupported_method
   end,
-  PathAtom = case Path of
+  %PathAtom = case Path of
+  PathAtom = case string:substr(Path,1,4) of
     "/msg" ->
-      msg;
+      case length(Path) of
+        4 ->
+          msg;
+        _ ->
+          {msg, string:substr(Path,6)}
+      end;
     _ ->
       unsupported_path
   end,

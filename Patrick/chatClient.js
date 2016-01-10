@@ -3,7 +3,10 @@ window.onload = function() {
 
     var xmlhttp = new XMLHttpRequest(); //ajax request object
 
-    var serverUrl = "http://localhost:8080/msg";
+    //var serverUrl = "http://localhost:8080/msg";
+	var serverUrl = "http://192.168.2.107:8080/msg";
+
+    var lastMessageIndex = 0;
 
     var isGetNewMessagesRequestResponse = function() {
         return xmlhttp.responseText != "[]" && xmlhttp.responseText != "";
@@ -28,9 +31,10 @@ window.onload = function() {
 
     var appendNewChatMessagesOutput = function(messagesJson){
         var messagesTable = document.getElementById(chatMessagesContainerId);
-        messagesTable.innerHTML = "";
+        //messagesTable.innerHTML = "";
         for(i = 0; i < messagesJson.length; i++){
             messagesTable.appendChild(createMessageLineTableRecord(messagesJson[i].time, messagesJson[i].from, messagesJson[i].message));
+            lastMessageIndex = messagesJson[i].id;
         }
     }
 
@@ -64,7 +68,6 @@ window.onload = function() {
         else{
             if(messageInputFieldValue != "") {
                 xmlhttp.open("POST", serverUrl, true);
-                //xmlhttp.body
                 xmlhttp.send(JSON.stringify({from:nameInputFieldValue, message:messageInputFieldValue}));
                 messageInputField.value = "";
             }
@@ -72,7 +75,9 @@ window.onload = function() {
     }
 
     var sendGetNewMessagesRequest = function () {
-        xmlhttp.open("GET", serverUrl, true);
+        var urlWithLastMessageIndex = serverUrl + "/" + lastMessageIndex;
+
+        xmlhttp.open("GET", urlWithLastMessageIndex, true);
         xmlhttp.send(null);
     }
 
