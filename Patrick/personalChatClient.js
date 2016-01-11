@@ -1,37 +1,48 @@
 window.onload = function() {
     var chatMessagesContainerId = "chatMessages";
 
-    var xmlhttp = new XMLHttpRequest(); //ajax request object
+    var xmlhttp = new XMLHttpRequest();
 
-    //var serverUrl = "http://localhost:8080/msg";
-	var serverUrl = "http://192.168.2.107:8080/msg";
+	var serverUrl = "http://192.168.2.107:8080";
 
-    var lastMessageIndex = 0;
+    var fromSelector = document.getElementById("fromSelector");
+    var toSelector = document.getElementById("toSelector");
 
     var isGetNewMessagesRequestResponse = function() {
         return xmlhttp.responseText != "[]" && xmlhttp.responseText != "";
+    }
 
+    var getSelectedFromValue = function(){
+        return fromSelector.options[fromSelector.selectedIndex].value;
+    }
+
+    var getSelectedToValue = function(){
+        return toSelector.options[toSelector.selectedIndex].value;
     }
 
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == XMLHttpRequest.DONE) {
             if (xmlhttp.status == 200) {
-                if (isGetNewMessagesRequestResponse()) {
-                    //temp until json erlang bug is fixed
-                    var tempJson = xmlhttp.responseText.replace(/\"\"/g, '\"');
-                    var responseJson = JSON.parse(tempJson);
-
-                    //var responseJson = JSON.parse(xmlhttp.responseText);
-
-                    appendNewChatMessagesOutput(responseJson);
+                if(isGetNewPersonalMessagesRequest()){
+                    var messagesJson = JSON.parse(cleanJson(xmlhttp.responseText));
+                    appendNewChatMessagesOutput(messagesJson);
+                }
+                else if(isGetRegisteredUsersRequest()){
+                    var usersJson = JSON.parse(cleanJson(xmlhttp.responseText));
+                    initializeFromAndToSelector(usersJson);
                 }
             }
         }
     }
 
+    //temp until json erlang bug is fixed
+    var cleanJson = function(jsonToClean) {
+        return jsonToClean.replace(/\"\"/g, '\"');
+    }
+
     var appendNewChatMessagesOutput = function(messagesJson){
         var messagesTable = document.getElementById(chatMessagesContainerId);
-        //messagesTable.innerHTML = "";
+        messagesTable.innerHTML = "";
         for(i = 0; i < messagesJson.length; i++){
             messagesTable.appendChild(createMessageLineTableRecord(messagesJson[i].time, messagesJson[i].from, messagesJson[i].message));
             lastMessageIndex = messagesJson[i].id;
@@ -58,50 +69,68 @@ window.onload = function() {
         return element;
     }
 
-    var postMessageToServer = function() {
-        var messageInputField = document.getElementById("messageInputField");
-        var messageInputFieldValue = messageInputField.value;
-        var nameInputFieldValue = document.getElementById("nameInputField").value;
-        if(nameInputFieldValue == ""){
-            alert("enter a name first to send messages");
-        }
-        else{
-            if(messageInputFieldValue != "") {
-                xmlhttp.open("POST", serverUrl, true);
-                xmlhttp.send(JSON.stringify({from:nameInputFieldValue, message:messageInputFieldValue}));
-                messageInputField.value = "";
-            }
-        }
+    var isGetRegisteredUsersRequest = function(){
+        return xmlhttp.responseURL.indexOf("/usr") != -1;
     }
 
-    var sendGetNewMessagesRequest = function () {
-        var urlWithLastMessageIndex = serverUrl + "/" + lastMessageIndex;
+    var isGetNewPersonalMessagesRequest = function(){
+        return xmlhttp.responseURL.indexOf("/personalMsg/") != -1;
+    }
 
-        xmlhttp.open("GET", urlWithLastMessageIndex, true);
+    var sendGetRegisteredUsersRequest = function(){
+        var url = serverUrl + "/usr";
+        xmlhttp.open("GET", url, true);
         xmlhttp.send(null);
     }
 
-
-    var initializeFromAndToSelector = function(){
-        
+    var sendPersonalMessagePostRequest = function () {
+        var messageInputField = document.getElementById("messageInputField");
+        var messageInputFieldValue = messageInputField.value;
+        if(messageInputFieldValue != "") {
+            var url = serverUrl + "/personalMsg";
+            xmlhttp.open("POST", url, true);
+            var fromValue = getSelectedFromValue();
+            var toValue = getSelectedToValue();
+            var messageValue = messageInputField.value;
+            var jsonString = JSON.stringify({from:fromValue, to:toValue, message:messageValue});
+            xmlhttp.send(jsonString);
+            messageInputField.value = "";
+        }
     }
 
+    var sendGetNewPersonalMessagesRequest = function(){
+        // example-url: /personalMsg/Patrick/Timo/4
+        //with personal messages always get all messages between those 2 chat partner(=> "/0"). to work with an index would need a lot more js code
+        var url = serverUrl + "/personalMsg/" + getSelectedFromValue() + "/" + getSelectedToValue() + "/0";
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send(null);
+    }
 
+    var triggerFromAndToSelectorInitialization = function(){
+        sendGetRegisteredUsersRequest();
+    }
 
+    var initializeFromAndToSelector = function(usersJson) {
+        for(i = 0; i < usersJson.length; i++){
+            var fromOption = document.createElement("option");
+            fromOption.text = usersJson[i].name;
+            fromSelector.add(fromOption);
+            var toOption = document.createElement("option");
+            toOption.text = usersJson[i].name;
+            toSelector.add(toOption);
+        }
+    }
 
-
-
-    document.getElementById("sendMessageButton").onclick = postMessageToServer;
-
-
-    sendGetNewMessagesRequest();
-    //setInterval(sendGetNewMessagesRequest, 1000);
+    document.getElementById("sendMessageButton").onclick = sendPersonalMessagePostRequest;
+    fromSelector.onchange = sendGetNewPersonalMessagesRequest;
+    toSelector.onchange = sendGetNewPersonalMessagesRequest;
+    triggerFromAndToSelectorInitialization();
+    setInterval(sendGetNewPersonalMessagesRequest, 1000);
 }
 
 
 
 
-//fromTableDataElement.style.borderRight = "2px solid";
 
 
 

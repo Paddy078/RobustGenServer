@@ -15,8 +15,8 @@ handle_request(#{ method := post, path := postMsg, body := Body }, _) ->
 handle_request(#{ method := get, path := getRegisteredUsers }, _) ->
   chat_server:get_registered_users();
 
-handle_request(#{ method := get, path := {getPersonalMsg,LastMessageIndex,User} }, _) ->
-    chat_server:get_new_personal_messages(LastMessageIndex, User);
+handle_request(#{ method := get, path := {getPersonalMsg,LastMessageIndex,User1,User2} }, _) ->
+    chat_server:get_new_personal_messages(LastMessageIndex, User1, User2);
 
 handle_request(#{ method := post, path := postPersonalMsg, body := Body }, _) ->
   NewMessageList = json_parser:json_to_erlang(Body),

@@ -2,7 +2,7 @@
 -include ("constants.hrl").
 -include ("message.hrl").
 
--export([start/0, post_new_message/2, post_new_async_message/2, get_new_messages/1, stop/0, post_new_messages/1, get_registered_users/0, post_new_personal_message/3, get_new_personal_messages/2, post_new_personal_messages/1, post_new_personal_async_message/3]).
+-export([start/0, post_new_message/2, post_new_async_message/2, get_new_messages/1, stop/0, post_new_messages/1, get_registered_users/0, post_new_personal_message/3, get_new_personal_messages/3, post_new_personal_messages/1, post_new_personal_async_message/3]).
 
 start() ->
 	gen_server:start({local, ?CALLBACKS}, ?CALLBACKS, [], [{timeout, ?TIMEOUT}]),
@@ -55,8 +55,8 @@ post_new_personal_async_message(From, MessageText, To) ->
 	Message = #{id => -1, from => From, to => To, message => MessageText, time => get_formatted_current_time()},
 	gen_server:cast(?CALLBACKS, {post_new_personal_message, Message}).
 
-get_new_personal_messages(LastMessageIndex, User) ->
-	gen_server:call(?CALLBACKS, {get_new_personal_messages, LastMessageIndex, User}).
+get_new_personal_messages(LastMessageIndex, User1, User2) ->
+	gen_server:call(?CALLBACKS, {get_new_personal_messages, LastMessageIndex, User1, User2}).
 %single chat END%
 
 stop()->

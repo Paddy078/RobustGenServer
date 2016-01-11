@@ -54,9 +54,9 @@ handle_call({post_new_personal_message, NewMessage}, _, {AllMessages, PersonalMe
 	NewPersonalMessages = lists:concat([PersonalMessages, [NewMessageWithUpdatedId]]),
 	{reply, ok, {AllMessages, NewPersonalMessages,RegisteredUsers}};
 
-handle_call({get_new_personal_messages, LastMessageIndex, User}, _, {AllMessages, PersonalMessages,RegisteredUsers}) ->
+handle_call({get_new_personal_messages, LastMessageIndex, User1, User2}, _, {AllMessages, PersonalMessages,RegisteredUsers}) ->
 	{LastMessageIndexInt,_} = string:to_integer(LastMessageIndex),
-	MessagesToSend = [X || X <- PersonalMessages, maps:get(id,X) > LastMessageIndexInt, (maps:get(from, X) == User) or (maps:get(to, X) == User)],
+	MessagesToSend = [X || X <- PersonalMessages, maps:get(id,X) > LastMessageIndexInt, ((maps:get(from, X) == User1) and (maps:get(to, X) == User2) or (maps:get(from, X) == User2) and (maps:get(to, X) == User1))],
 	{reply, MessagesToSend, {AllMessages, PersonalMessages,RegisteredUsers}}.
 
 handle_cast({post_new_personal_message, NewMessage}, {AllMessages, PersonalMessages,RegisteredUsers}) ->

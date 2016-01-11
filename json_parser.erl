@@ -49,7 +49,7 @@ erlang_to_json(Map) when is_map(Map) ->
   case Map of
     #{name := Name} -> %serialization of list of registered users
       #{name := Name} = Map,
-      io_lib:fwrite("{\n\t\"Name\": \"~p\"}", [Name]);
+      io_lib:fwrite("{\n\t\"name\": \"~p\"}", [Name]);
     _ -> %serialization of message
       #{id := Id, from := From, message := Message, time := Time} = Map,
       io_lib:fwrite("{\n\t\"id\": \"~p\", \n\t\"from\": \"~p\",\n\t\"message\": \"~p\"\n,\n\t\"time\": \"~p\"\n}", [Id, From, Message, Time])

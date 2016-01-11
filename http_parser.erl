@@ -37,12 +37,13 @@ read_header(HeaderLine) ->
       case length(Path) of
         12 -> %ur = .../personalMsg
           postPersonalMsg;
-        _ -> %url z.B. = .../personalMsg/Patrick/4
+        _ -> %url z.B. = .../personalMsg/Patrick/Timo/4  ===== messages between Patrick to Timo
           StringToSplit = string:substr(Path, 14),
           SplittedString = string:tokens(StringToSplit, "/"),
-          User = lists:nth(1, SplittedString),
-          LastMessageIndex = lists:nth(2, SplittedString),
-          {getPersonalMsg, LastMessageIndex, User}
+          User1 = lists:nth(1, SplittedString),
+          User2 = lists:nth(2, SplittedString),
+          LastMessageIndex = lists:nth(3, SplittedString),
+          {getPersonalMsg, LastMessageIndex, User1, User2}
         end;
       "/usr" ->
         getRegisteredUsers;
