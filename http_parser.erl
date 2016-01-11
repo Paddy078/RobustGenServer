@@ -29,10 +29,21 @@ read_header(HeaderLine) ->
     "/msg" ->
       case length(Path) of
         4 ->
-          msg;
+          postMsg;
         _ ->
-          {msg, string:substr(Path,6)}
+          {getMsg, string:substr(Path,6)} %second element in tuple is index of last message the client already has. to genereate message delta
       end;
+    "/per" -> %url = .../personalMsg...
+      case length(Path) of
+        12 -> %ur = .../personalMsg
+          postPersonalMsg;
+        _ -> %url z.B. = .../personalMsg/Patrick/4
+          StringToSplit = string:substr(Path, 14),
+          SplittedString = string:tokens(StringToSplit, "/"),
+          User = lists:nth(1, SplittedString),
+          LastMessageIndex = lists:nth(2, SplittedString),
+          {getPersonalMsg, LastMessageIndex, User}
+        end;
     _ ->
       unsupported_path
   end,
