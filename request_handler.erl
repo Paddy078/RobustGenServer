@@ -20,6 +20,9 @@ handle_request(#{ method := get, path := {getPersonalMsg,LastMessageIndex,User} 
 
 handle_request(#{ method := post, path := postPersonalMsg, body := Body }, _) ->
   NewMessageList = json_parser:json_to_erlang(Body),
+
+
+
   chat_server:post_new_personal_messages(NewMessageList),
   "".
 %single chat END%

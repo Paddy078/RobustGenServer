@@ -32,20 +32,28 @@ json_element_to_erlang(Element) ->
   %%Create a list of map keys and values
   CElementList = string:tokens(CleanedElement2, ",: "),
   case CElementList of
+     ["from", From, "to", To, "message", Message]  ->
+       #{from => From, to => To, message => Message};
      ["from", From, "message", Message]  ->
        #{from => From, message => Message};
      [] ->
        [];
       _ ->
-        #{from => "System", message => "Incorrect Message Format"}
+        #{from => "System", to => "System", message => "Incorrect Message Format"}
   end.
 
 %% Serializes an Erlang Map to a JSON String
 %% TODO: Implement actual serialization
 % The input is a map and should be serialized to a JSON object
 erlang_to_json(Map) when is_map(Map) ->
-  #{id := Id, from := From, message := Message, time := Time} = Map,
-  io_lib:fwrite("{\n\t\"id\": \"~p\", \n\t\"from\": \"~p\",\n\t\"message\": \"~p\"\n,\n\t\"time\": \"~p\"\n}", [Id, From, Message, Time]);
+  case Map of
+    #{name := Name} -> %serialization of list of registered users
+      #{name := Name} = Map,
+      io_lib:fwrite("{\n\t\"Name\": \"~p\"}", [Name]);
+    _ -> %serialization of message
+      #{id := Id, from := From, message := Message, time := Time} = Map,
+      io_lib:fwrite("{\n\t\"id\": \"~p\", \n\t\"from\": \"~p\",\n\t\"message\": \"~p\"\n,\n\t\"time\": \"~p\"\n}", [Id, From, Message, Time])
+  end;
 
 % The input is an array and should be serialized to a JSON array
 erlang_to_json(List) when is_list(List) ->

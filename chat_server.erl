@@ -10,7 +10,6 @@ start() ->
 
 post_new_message(From, Message_Text) ->
 	io:format("new sync message: ~p // ~p~n~n", [From, Message_Text]),
-
 	Msg = #{id => -1, from => From, message => Message_Text, time => get_formatted_current_time()},
 	gen_server:call(?CALLBACKS, {post_new_message, Msg}).
 
@@ -41,10 +40,15 @@ post_new_personal_message(From, MessageText, To) ->
 	gen_server:call(?CALLBACKS, {post_new_personal_message, Message}).
 
 post_new_personal_messages(MessageList) ->
-	[First|Other] = MessageList,
-	#{from := From, message := MessageText, to := To} = First,
-	post_new_personal_async_message(From, MessageText, To),
-	post_new_personal_messages(Other).
+	case MessageList of
+		[] ->
+			"";
+		_ ->
+			[First|Other] = MessageList,
+			#{from := From, message := MessageText, to := To} = First,
+			post_new_personal_async_message(From, MessageText, To),
+			post_new_personal_messages(Other)
+	end.
 
 post_new_personal_async_message(From, MessageText, To) ->
 	io:format("new personal async message: ~p // ~p // ~p~n~n", [From, To, MessageText]),

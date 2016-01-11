@@ -11,7 +11,7 @@ init([]) ->
 	AllMessages = [],
 
 	%single chat START%
-	RegisteredUsers = ["Xaver", "Patrick", "Timo", "Sebastian"],
+	RegisteredUsers = [#{name => "Xaver"}, #{name => "Patrick"}, #{name => "Timo"}, #{name => "Sebastian"}],
 	PersonalMessages = [],
 	%single chat END%
 

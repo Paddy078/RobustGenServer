@@ -44,6 +44,8 @@ read_header(HeaderLine) ->
           LastMessageIndex = lists:nth(2, SplittedString),
           {getPersonalMsg, LastMessageIndex, User}
         end;
+      "/usr" ->
+        getRegisteredUsers;
     _ ->
       unsupported_path
   end,
