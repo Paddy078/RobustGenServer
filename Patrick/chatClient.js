@@ -3,8 +3,8 @@ window.onload = function() {
 
     var xmlhttp = new XMLHttpRequest(); //ajax request object
 
-    //var serverUrl = "http://localhost:8080/msg";
-	var serverUrl = "http://192.168.2.107:8080/msg";
+    var serverUrl = "http://localhost:8080/msg";
+	// var serverUrl = "http://192.168.2.107:8080/msg";
 
     var lastMessageIndex = 0;
 
@@ -87,12 +87,17 @@ window.onload = function() {
 
     sendGetNewMessagesRequest();
     setInterval(sendGetNewMessagesRequest, 1000);
+
+    $('#messageInputField').keyup(function(e) {
+        if (e.keyCode == 13) {
+            postMessageToServer();
+        }
+    });
+
 }
 
 
 
 
+
 //fromTableDataElement.style.borderRight = "2px solid";
-
-
-

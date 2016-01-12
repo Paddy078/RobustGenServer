@@ -3,7 +3,8 @@ window.onload = function() {
 
     var xmlhttp = new XMLHttpRequest();
 
-	var serverUrl = "http://192.168.2.107:8080";
+    var serverUrl = "http://localhost:8080";
+	// var serverUrl = "http://192.168.2.107:8080";
 
     var fromSelector = document.getElementById("fromSelector");
     var toSelector = document.getElementById("toSelector");
@@ -126,11 +127,10 @@ window.onload = function() {
     toSelector.onchange = sendGetNewPersonalMessagesRequest;
     triggerFromAndToSelectorInitialization();
     setInterval(sendGetNewPersonalMessagesRequest, 1000);
+
+    $('#messageInputField').keyup(function(e) {
+        if (e.keyCode == 13) {
+            sendPersonalMessagePostRequest();
+        }
+    });
 }
-
-
-
-
-
-
-

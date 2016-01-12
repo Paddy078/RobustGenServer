@@ -28,9 +28,9 @@ json_element_to_erlang(Element) ->
   %%Remove some stuff
   CleanedElement = [X || X <- StrippedElem, X =/= ${, X =/= $}, X =/= $[, X =/= $], X=/=$\\, X=/=$"],
   %%Remove all \n ´s
-  CleanedElement2 = re:replace(CleanedElement, "\\s+", "", [global,{return,list}]),
+  CleanedElement2 = re:replace(CleanedElement, "\\v+", "", [global,{return,list}]),
   %%Create a list of map keys and values
-  CElementList = string:tokens(CleanedElement2, ",: "),
+  CElementList = string:tokens(CleanedElement2, ",:"),
   case CElementList of
      ["from", From, "to", To, "message", Message]  ->
        #{from => From, to => To, message => Message};

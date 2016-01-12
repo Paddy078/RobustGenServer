@@ -95,7 +95,9 @@ code_change(_, {AllMessages, PersonalMessages,RegisteredUsers}, _) ->
 	io:format("Code Change called!~n", []),
 	{ok, {AllMessages, PersonalMessages,RegisteredUsers}}.
 
-%Helper method to update the id of a new message to the next free id
+
+%%% Helpers
+%% Helper method to update the id of a new message to the next free id
 	get_new_message_with_updated_id(NewMessage, AllMessages) ->
 
 		case length(AllMessages) of
