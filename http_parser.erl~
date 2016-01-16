@@ -29,8 +29,14 @@ read_header(HeaderLine) ->
     "/public_message" ->
       case length(Path) of
         15 -> %url = .../public_message
+
+io:format("1"),
+
           post_new_public_message;
         _ ->
+
+		      io:format("2"),
+
 	  {LastMessageIndex,_} = string:to_integer(string:substr(Path,17)),
           {get_new_public_messages, LastMessageIndex} %second element in tuple is index of last message the client already has. to genereate message delta
       end;
@@ -49,6 +55,8 @@ read_header(HeaderLine) ->
       "/get_users" ->
        		get_registered_users;
     _ ->
+
+			     io:format("6path:~p~n",[Path]),
       unsupported_path
   end,
   #{

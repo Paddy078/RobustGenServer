@@ -71,15 +71,15 @@ window.onload = function() {
     }
 
     var isGetRegisteredUsersRequest = function(){
-        return xmlhttp.responseURL.indexOf("/usr") != -1;
+        return xmlhttp.responseURL.indexOf("/get_users") != -1;
     }
 
     var isGetNewPersonalMessagesRequest = function(){
-        return xmlhttp.responseURL.indexOf("/personalMsg/") != -1;
+        return xmlhttp.responseURL.indexOf("/private_message/") != -1;
     }
 
     var sendGetRegisteredUsersRequest = function(){
-        var url = serverUrl + "/usr";
+        var url = serverUrl + "/get_users";
         xmlhttp.open("GET", url, true);
         xmlhttp.send(null);
     }
@@ -88,7 +88,7 @@ window.onload = function() {
         var messageInputField = document.getElementById("messageInputField");
         var messageInputFieldValue = messageInputField.value;
         if(messageInputFieldValue != "") {
-            var url = serverUrl + "/personalMsg";
+            var url = serverUrl + "/private_message";
             xmlhttp.open("POST", url, true);
             var fromValue = getSelectedFromValue();
             var toValue = getSelectedToValue();
@@ -100,9 +100,9 @@ window.onload = function() {
     }
 
     var sendGetNewPersonalMessagesRequest = function(){
-        // example-url: /personalMsg/Patrick/Timo/4
+        // example-url: /private_message/Patrick/Timo/0
         //with personal messages always get all messages between those 2 chat partner(=> "/0"). to work with an index would need a lot more js code
-        var url = serverUrl + "/personalMsg/" + getSelectedFromValue() + "/" + getSelectedToValue() + "/0";
+        var url = serverUrl + "/private_message/" + getSelectedFromValue() + "/" + getSelectedToValue() + "/0";
         xmlhttp.open("GET", url, true);
         xmlhttp.send(null);
     }

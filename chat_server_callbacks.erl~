@@ -8,8 +8,14 @@
 %%% Callbacks
 %% Life Cycle
 init([]) ->
-	AllMessages = [],
-	{ok, AllMessages}.
+	PublicMessages = [],
+
+	%private chat START%
+	RegisteredUsers = [#{name => "Xaver"}, #{name => "Patrick"}, #{name => "Timo"}, #{name => "Sebastian"}],
+	PrivateMessages = [],
+	%private chat END%
+
+	{ok, {PublicMessages, PrivateMessages, RegisteredUsers}}.
 
 terminate(normal, Messages) ->
 	io:format("Terminate called: normal~n", []),
@@ -29,40 +35,76 @@ terminate(Other, Messages) ->
 	exit(self(), ok).
 
 %% Synchronous Calls
-handle_call({post_new_message, NewMessage}, _, AllMessages) ->
-	NewAllMessages = lists:concat([AllMessages, [NewMessage]]),
-	{reply, ok, NewAllMessages};
+handle_call({post_new_public_message, NewMessage}, _, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
+		NewMessageWithUpdatedId = get_new_message_with_updated_id(NewMessage, PublicMessages),
+		NewPublicMessages = lists:concat([PublicMessages, [NewMessageWithUpdatedId]]),
+		{reply, ok, {NewPublicMessages, PrivateMessages,RegisteredUsers}};
 
-handle_call({get_new_messages}, _, AllMessages) ->
-%	{reply, AllMessages, AllMessages}.
+handle_call({get_new_public_messages, LastMessageIndex}, _, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
+ 	MessagesToSend = [X || X <- PublicMessages, maps:get(id,X) > LastMessageIndex], %filter messages, only get messages with id higher that lastMessageIndex
+	{reply, MessagesToSend, {PublicMessages, PrivateMessages,RegisteredUsers}};
 
-	NewMessagesToSend = "",
-	{reply, NewMessagesToSend, NewMessagesToSend}.
+%single chat START%
+handle_call(get_registered_users, _, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
+	{reply, RegisteredUsers, {PublicMessages, PrivateMessages,RegisteredUsers}};
+
+handle_call({post_new_private_message, NewMessage}, _, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
+	NewMessageWithUpdatedId = get_new_message_with_updated_id(NewMessage, PrivateMessages),
+	NewPrivateMessages = lists:concat([PrivateMessages, [NewMessageWithUpdatedId]]),
+	{reply, ok, {PublicMessages, NewPrivateMessages,RegisteredUsers}};
+
+handle_call({get_new_private_messages, LastMessageIndex, User1, User2}, _, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
+	MessagesToSend = [X || X <- PrivateMessages, maps:get(id,X) > LastMessageIndex, ((maps:get(from, X) == User1) and (maps:get(to, X) == User2) or (maps:get(from, X) == User2) and (maps:get(to, X) == User1))],
+	{reply, MessagesToSend, {PublicMessages, PrivateMessages,RegisteredUsers}}.
+
+handle_cast({post_new_private_message, NewMessage}, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
+	NewMessageWithUpdatedId = get_new_message_with_updated_id(NewMessage, PrivateMessages),
+	NewPrivateMessages = lists:concat([PrivateMessages, [NewMessageWithUpdatedId]]),
+	{noreply, {PublicMessages, NewPrivateMessages,RegisteredUsers}};
+%single chat END%
+
 
 
 
 %% Asynchronous Calls
-handle_cast(stop, Messages) ->
+handle_cast(stop, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
 	io:format("Async stop request~n"),
-	{stop, normal, Messages};
+	{stop, normal, {PublicMessages, PrivateMessages,RegisteredUsers}};
 
-handle_cast({post_new_message, Msg}, AllMessages) ->
-	NewAllMessages = lists:concat([AllMessages, [Msg]]),
-	{noreply, NewAllMessages};
+handle_cast({post_new_public_message, Msg}, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
+	NewMessageWithUpdatedId = get_new_message_with_updated_id(Msg, PublicMessages),
+	NewPublicMessages = lists:concat([PublicMessages, [NewMessageWithUpdatedId]]),
+	{noreply, {NewPublicMessages, PrivateMessages,RegisteredUsers}};
 
-handle_cast(Request, Messages) ->
+handle_cast(Request, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
 	io:format("Async request with: ~p~n", [Request]),
-	{noreply, Messages}.
+	{noreply, {PublicMessages, PrivateMessages,RegisteredUsers}}.
 
 %% Other
-handle_info(timeout, Messages) ->
+handle_info(timeout, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
 	io:format("Timeout hit!~n", []),
-	{noreply, Messages};
-handle_info(Info, Messages) ->
+	{noreply, {PublicMessages, PrivateMessages,RegisteredUsers}};
+handle_info(Info, {PublicMessages, PrivateMessages,RegisteredUsers}) ->
 	io:format("Unexpected message: ~p~n", [Info]),
-	{noreply, Messages}.
+	{noreply, {PublicMessages, PrivateMessages,RegisteredUsers}}.
 
-code_change(_, Messages, _) ->
+code_change(_, {PublicMessages, PersonalMessages,RegisteredUsers}, _) ->
 	% not implemented
 	io:format("Code Change called!~n", []),
-	{ok, Messages}.
+	{ok, {PublicMessages, PrivateMessages,RegisteredUsers}}.
+
+
+%%% Helpers
+%% Helper method to update the id of a new message to the next free id
+	get_new_message_with_updated_id(NewMessage, AllMessages) ->
+
+		case length(AllMessages) of
+			0 ->
+				LastMessageID = 0;
+			_ ->
+				LastMessage = lists:last(AllMessages),
+				#{id := LastMessageID} = LastMessage
+		end,
+		NewMessageID = LastMessageID + 1,
+		NewMessageWithUpdatedId = maps:put(id, NewMessageID, NewMessage),
+		NewMessageWithUpdatedId.

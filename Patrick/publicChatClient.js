@@ -3,7 +3,7 @@ window.onload = function() {
 
     var xmlhttp = new XMLHttpRequest(); //ajax request object
 
-    var serverUrl = "http://localhost:8080/msg";
+    var serverUrl = "http://localhost:8080/public_message";
 	// var serverUrl = "http://192.168.2.107:8080/msg";
 
     var lastMessageIndex = 0;
