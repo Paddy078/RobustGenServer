@@ -21,4 +21,3 @@ handle_request(#{ method := post, path := post_new_private_message, body := Body
   NewMessageList = json_parser:json_to_erlang(Body),
   chat_server:post_new_private_messages(NewMessageList),
   "".
-

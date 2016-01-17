@@ -29,7 +29,7 @@ post_new_public_messages([]) ->
 post_new_public_messages(MessageList) ->
 	[First|Other] = MessageList,
 	#{from := From, message := Message} = First,
-	post_new_public_message(From, Message),
+	post_new_public_async_message(From, Message),
 	post_new_public_messages(Other).
 
 post_new_public_async_message(From, MessageText) ->
@@ -55,7 +55,7 @@ post_new_private_messages([]) ->
 post_new_private_messages(MessageList) ->
 	[First|Other] = MessageList,
 	#{from := From, message := MessageText, to := To} = First,
-	post_new_private_message(From, MessageText, To),
+	post_new_private_async_message(From, MessageText, To),
 	post_new_private_messages(Other).
 
 post_new_private_async_message(From, MessageText, To) ->
